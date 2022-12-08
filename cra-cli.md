@@ -21,7 +21,7 @@ The {{site.data.keyword.cloud}} command-line interface (CLI) provides code risk 
 You can use the CLI to complete the following tasks:
 
 * Generate a Bill of Materials (BOM) file that lists the dependencies and available license information of all third-party OS packages and application packages. You can also generate this output in CycloneDX-specific format.
-* Discover vulnerabilities in packages that are listed in the BOM file. You can also view the generated report in CycloneDX-specific format.
+* Discover vulnerabilities in packages that are listed in the BOM file. You can also view the generated report in CycloneDX-specific format. Vulnerability autoremediation is also currently available for Node.js applications.
 * Analyze a Terraform plan for compliance with certain rules.
 * Analyze Kubernetes files for compliance with certain rules.
 
@@ -33,7 +33,7 @@ Code Risk Analyzer supports the Java&trade;, Node.js, Python, and Go languages. 
 |Content |Description	|
 |:----------|:------------------------------|
 |Java		|The repo must use Maven or Gradle. For Maven, dependencies are computed by using the `pom.xml` file. For Gradle, dependencies are computed by using the `Build.gradle` file.		|
-|Node.js		|Dependencies are computed by using the `package-lock.json` file.		|
+|Node.js		|Dependencies are computed by using the `package-lock.json` file. For Node.js, the Code Risk analyzer can also perform autoremediation when possible.		|
 |Python		|Dependencies are computed by using the `requirements.txt` file.		|
 |Golang		|Supports `go mod` and `go dep` dependency management. For `go mod`, the `go.sum` file must be in the repo. For `go dep`, the `Gopkg.lock` file must be in the repo.		|
 | Dockerfiles		|Files with the `Dockerfile` pattern in the repo are considered. For container images, the Debian, Red Hat Enterprise Linux&reg;, Alpine, and Ubuntu Linux distros are supported.  		|
@@ -112,7 +112,7 @@ The `bom-generate` command depends on certain external commands:
 * If the path contains Dockerfiles, this command pulls down base images and build images for every build stage in each Dockerfile. In this scenario, the `bom-generate` command requires that the `Docker cli` and `tar` commands are available.
 * If the path contains Maven files, this command uses `mvn` to build a list of dependencies. In this scenario, the `bom-generate` command requires the `mvn` command to be available.
 * If the path contains Gradle files, this command uses `gradle` to build a list of dependencies. In this scenario, the `bom-generate` command requires the `gradle` command to be available.
-* If the path contains Node.js `pacakge-json` files and this command is used to generate a corresponding `package-lock.json` file, the `bom-generate` command uses `npm` to build the package-lock.json file. In this scenario, the command requires the `npm` command to be available.
+* If the path contains Node.js `package-json` files and this command is used to generate a corresponding `package-lock.json` file, the `bom-generate` command uses `npm` to build the package-lock.json file. In this scenario, the command requires the `npm` command to be available.
 * If the path contains the Python requirements.txt file, the command uses `pip` to generate the package dependencies. In this scenario, the `bom-generate`command requires the `pip` command to be available. Both Python version 2 and Python version 3 are supported. 
 
 If you are using Dockerfiles, make sure to log in to your container registry from where the base images are to be pulled. 
@@ -189,7 +189,7 @@ ibmcloud cra bom --path . --report bomreport.json
 ## Vulnerability scan
 {: #vulnerability-command}
 
-The `vulnerability-scan` command expects a BOM file in `standard` format as input and detects vulnerabilities in application packages and OS packages that are listed in the BOM file. Based on rich threat intelligence from Snyk, targeted fix recommendations are provided. You can also generate this report in the standard format or in CycloneDX's Vulnerability Exploitability Exchange (VEX) format.
+The `vulnerability-scan` command expects a BOM file in `standard` format as input and detects vulnerabilities in application packages and OS packages that are listed in the BOM file. Based on rich threat intelligence from Snyk, targeted fix recommendations are provided. CRA can also perform autoremediation on vulnerable packages when possible (currently for Node.js based applications only). You can also generate this report in the standard format or in CycloneDX's Vulnerability Exploitability Exchange (VEX) format.
 
 ```sh
 ibmcloud cra vulnerability-scan
@@ -208,6 +208,11 @@ The following table lists the options for using the `vulnerability-scan` command
 | `--include-nofix`    | Optional             | Include or exclude the reporting of CVEs that do not have known remediations. By default, this option is set to `app`. The `app` option is used to include only app package CVEs with no fixes. The `os` option is used to include only OS package CVEs with no fixes. The `all` option is used to include both app and OS package CVEs with no fixes. The `none` option is used to exclude both app and OS package CVEs with no fixes. |
 | `-r`, `--report`     | Optional             | The path to the generated report.                                          |
 | `-o`, `--output`     | Optional             | Selects the CVE report format. You can generate the format output in either Standard CVE format (`standard`) or CycloneDX's VEX format (`cyclonedx`). The default value is `standard`. |
+| `-a`, `--autofix`     | Optional             | Fixes specific types of app vulnerabilities (Currently for Node.js apps only). |
+| `--path`     | Required if `--autofix` enabled           | The project directory path to scan. Required and applicable only if autofix is set." |
+| `-f`, `--commentfile`     | Optional             | Specify the file where markdown report is created. Only applicable with autofix." |
+| `--force`     | Optional             | Force update for node packages even if major version is different. Only applicable with autofix.. |
+
 | `-s`, `--strict`     | Optional             | Results in command failure (exit status 2) when vulnerabilities are found. |
 {: caption="Table 3. Command options for performing a vulnerability scan" caption-side="top"}
 
