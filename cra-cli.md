@@ -37,7 +37,7 @@ Code Risk Analyzer supports the Java&trade;, Node.js, Python, and Go languages. 
 |:----------|:------------------------------|
 |Java		|	The repo requires Maven or Gradle for build automation. Maven uses `pom.xml` file to calculate dependencies, and Gradle uses `build.gradle(.kts)` file. Code Risk Analyzer can automate remediation for both Maven and Gradle (Groovy).	|
 |Node.js		|`package-lock.json` file computes the dependencies. For Node.js, Code Risk analyzer can also automate remediation. Ensure that the installed npm version matches the project's npm version.		|
-|Python		|Dependencies are computed by using the `requirements.txt` file.		|
+|Python		|Dependencies are computed by using the `requirements.txt` and `pyproject.toml` files.		|
 |Golang		|Supports `go mod` and `go dep` dependency management. For `go mod`, the `go.sum` file must be in the repo. For `go dep`, the `Gopkg.lock` file must be in the repo.		|
 | Dockerfiles		|Files with the `Dockerfile` pattern in the repo are considered. For container images, the Debian, Red Hat Enterprise Linux&reg;, Alpine, and Ubuntu Linux distros are supported.  		|
 | Kubernetes		|Files that are suffixed with `.yaml` and `.yml` are considered. The `kind` value must be set to `Pod`, `ReplicaSet`, `ReplicationController`, `Deployment`, `Daemonset`, `Statefulset`, `Job`, `CronJob`, `NetworkPolicy`, or `Ingress`.   		|
@@ -146,7 +146,7 @@ The `bom-generate` command depends on certain external commands:
 * If the path contains Maven files, this command uses `mvn` to build a list of dependencies. In this scenario, the `bom-generate` command requires the `mvn` command to be available.
 * If the path contains Gradle files, this command uses `gradle` to build a list of dependencies. In this scenario, the `bom-generate` command requires the `gradle` command to be available.
 * If the path contains Node.js `package-json` files and this command is used to generate a corresponding `package-lock.json` file, the `bom-generate` command uses `npm` to build the package-lock.json file. In this scenario, the command requires the `npm` command to be available.
-* If the path contains the Python requirements.txt file, the command uses `pip` to generate the package dependencies. In this scenario, the `bom-generate`command requires the `pip` command to be available. Both Python version 2 and Python version 3 are supported.
+* If the path contains the Python `requirements.txt` or `pyproject.toml` files, the command uses `pip` to generate the package dependencies. In this scenario, the `bom-generate`command requires the `pip` command to be available. Both Python version 2 and Python version 3 are supported.
 
 If you are using Dockerfiles, make sure to log in to your container registry from where the base images are to be pulled.
 
